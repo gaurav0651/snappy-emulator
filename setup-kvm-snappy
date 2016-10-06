@@ -1,0 +1,33 @@
+#!/bin/bash
+
+#sudo apt-get update
+if sudo apt-get install qemu-kvm -y; then
+    if kvm-ok; then
+	if [ -f "ubuntu-15.04-snappy-amd64-generic.img" ]; then 
+	    echo "------------------------------------------"
+	    echo "localhost username/password: ubuntu/ubuntu"
+	    echo "------------------------------------------"
+	    kvm -m 512 -redir :8090::80 -redir :8022::22 ubuntu-15.04-snappy-amd64-generic.img
+	else
+	    if [ ! -f "ubuntu-15.04-snappy-amd64-generic.img.xz" ]; then 
+	        if ! wget http://releases.ubuntu.com/15.04/ubuntu-15.04-snappy-amd64-generic.img.xz; then
+		    echo "unable to download kvm image file" && exit
+	        fi
+	    fi
+	    if ! unxz ubuntu-15.04-snappy-amd64-generic.img.xz; then
+		echo "image extraction failed" && exit
+	    fi
+	    echo "------------------------------------------"
+	    echo "localhost username/password: ubuntu/ubuntu"
+	    echo "------------------------------------------"
+	    kvm -m 512 -redir :8090::80 -redir :8022::22 ubuntu-15.04-snappy-amd64-generic.img
+	fi
+
+    else
+	echo "kvm not supported in this system" && exit
+    fi
+else
+    echo "qemu-kvm Installation failed" && exit
+fi
+
+
